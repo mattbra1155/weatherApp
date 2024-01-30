@@ -43,6 +43,7 @@ setInterval(() => {
         </div>
         <div class="row">
             <div class="column">
+                <p class="text">Condition: Clear</p>
                 <p class="text">Wind: <b>{{ wind }} km/h</b></p>
                 <p class="text">Temperature: {{ temp }}°C</p>
                 <p class="text">Feels like: {{ tempFeel }}°C</p>
