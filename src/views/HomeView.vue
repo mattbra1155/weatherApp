@@ -2,11 +2,11 @@
 import WeatherWindow from '@/components/WeatherWindow.vue'
 import { useLocationsStore } from '@/stores/location';
 import { useWeatherStore } from '@/stores/weather';
-import { ref, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 
 const locationData = ref<any>({})
 const { coords, getLocation } = useLocationsStore()
-const { getCurrentWeather } = useWeatherStore()
+const { getCurrentWeather, state } = useWeatherStore()
 
 
 getLocation()
@@ -16,6 +16,16 @@ watch(coords, async (locationCoords) => {
     console.log(locationData.value);
 
   }
+})
+
+onMounted(() => {
+
+  setInterval(() => {
+    if (state.latitude && state.longitude) {
+      getCurrentWeather(state.latitude, state.longitude)
+    }
+
+  }, 5000)
 })
 
 </script>
