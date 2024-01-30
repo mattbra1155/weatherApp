@@ -18,11 +18,11 @@ watch(coords, async (locationCoords) => {
   }
 })
 
-onMounted(() => {
+onMounted(async () => {
 
-  setInterval(() => {
+  setInterval(async () => {
     if (state.latitude && state.longitude) {
-      getCurrentWeather(state.latitude, state.longitude)
+      locationData.value = await getCurrentWeather(state.latitude, state.longitude)
     }
 
   }, 5000)

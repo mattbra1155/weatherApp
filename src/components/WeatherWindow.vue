@@ -1,7 +1,7 @@
 <script lang="ts" setup>
+import { useWeatherStore } from '@/stores/weather';
 import { toRefs, computed, ref } from 'vue';
-
-
+const { searchLocation } = useWeatherStore()
 const props = defineProps<{
     locationData: any
 }>()
@@ -16,13 +16,21 @@ console.log(location.value);
 // const localTime = ref(new Date(location.value?.localtime).toLocaleTimeString())
 const localTime = ref(new Date().toLocaleTimeString())
 const localDate = ref(new Date(location.value?.localtime).toLocaleDateString())
-const city = ref(location.value.name)
-const country = ref(location.value.country)
-const icon = ref(currentWeather.value.condition.icon)
-const wind = ref(currentWeather.value.wind_kph)
-const temp = ref(currentWeather.value.temp_c)
-const tempFeel = ref(currentWeather.value.feelslike_c)
+const city = computed(() => location.value.name)
+const country = computed(() => location.value.country)
+const icon = computed(() => currentWeather.value.condition.icon)
+const wind = computed(() => currentWeather.value.wind_kph)
+const temp = computed(() => currentWeather.value.temp_c)
+const tempFeel = computed(() => currentWeather.value.feelslike_c)
 
+
+const searchedLocation = ref<string>()
+const search = () => {
+    if (!searchedLocation.value) {
+        return
+    }
+    searchLocation(searchedLocation.value)
+}
 setInterval(() => {
     localTime.value = new Date().toLocaleTimeString()
 }, 1000)
@@ -49,6 +57,10 @@ setInterval(() => {
                 <p class="text">Feels like: {{ tempFeel }}°C</p>
             </div>
         </div>
+        <form @submit.prevent="search">
+            <input type="search" v-model="searchedLocation" />
+            <button type="submit">Search</button>
+        </form>
     </div>
 </template>
 
