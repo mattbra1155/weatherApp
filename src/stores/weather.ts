@@ -1,15 +1,25 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
+import { useLocationsStore } from './location';
 
+interface IWeatherState {
+    latitude: null | number
+    longitude: null | number
+    location: {
+        city: null |string
+        country: null | string
 
+    }
+}
 export const useWeatherStore = defineStore('weather', () => {
-    const state = ref<{
-        latitude: null | number
-        longitude: null | number
-    }>({
-            latitude: null,
-            longitude: null
-    })
+    const state = ref<IWeatherState>({
+        location: {
+            city: null,
+            country: null
+        },
+        latitude: null,
+        longitude: null,
+    }) 
 
     const searchLocation = async(location: string)=> {
         try {
@@ -24,6 +34,9 @@ export const useWeatherStore = defineStore('weather', () => {
             state.value.longitude = data[0].lon
             console.log(state.value);
             
+            state.value.location.city = data[0].name
+            state.value.location.country = data[0].country
+
             if (state.value.latitude && state.value.longitude) {
                 // need to add to state locationData from HomeView
                 getCurrentWeather(state.value.latitude, state.value.longitude)

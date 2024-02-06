@@ -18,6 +18,7 @@ watch(coords, async (locationCoords) => {
   }
 })
 
+
 onMounted(async () => {
 
   setInterval(async () => {
