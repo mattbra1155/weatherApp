@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { useCounterStore } from '@/stores/counter';
 import { useSearchStore } from '@/stores/search';
 import { useWeatherStore } from '@/stores/weather';
 import { storeToRefs } from 'pinia';
@@ -12,7 +11,11 @@ const props = defineProps<{
 
 const { locationData } = toRefs(props)
 const search = useSearchStore()
-const { isOpen, } = storeToRefs(search)
+const weather = useWeatherStore()
+
+const { state } = storeToRefs(weather)
+console.log(state.value);
+
 
 // TO DO blew format date and time
 const location = computed(() => locationData.value.location)
@@ -31,6 +34,7 @@ const tempFeel = computed(() => currentWeather.value?.feelslike_c)
 setInterval(() => {
     localTime.value = new Date().toLocaleTimeString()
 }, 1000)
+
 
 </script>
 

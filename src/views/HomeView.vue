@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ForecastView from '@/components/ForecastView.vue';
 import WeatherWindow from '@/components/WeatherWindow.vue'
 import { useLocationsStore } from '@/stores/location';
 import { useWeatherStore } from '@/stores/weather';
@@ -34,5 +35,6 @@ onMounted(async () => {
 <template>
   <main>
     <WeatherWindow :location-data="locationData" />
+    <ForecastView />
   </main>
 </template>
