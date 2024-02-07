@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router';
 import SearchModal from './components/SearchModal.vue';
-
+import { useSearchStore } from './stores/search';
+const store = useSearchStore()
 
 
 </script>
 
 <template>
   <RouterView />
-  <SearchModal />
+  <SearchModal v-if="store.isOpen" />
 </template>
 
 <style lang="sass">

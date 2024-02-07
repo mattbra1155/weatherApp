@@ -2,28 +2,28 @@
 import { useSearchStore } from '@/stores/search';
 import { useWeatherStore } from '@/stores/weather';
 import { storeToRefs } from 'pinia';
-import { toRefs, computed, ref, onMounted } from 'vue';
+import { computed, ref, watch } from 'vue';
 import SearchIcon from './icons/searchIcon.vue';
+import { useLocationsStore } from '@/stores/location';
+const locationStore = useLocationsStore()
 
-const props = defineProps<{
-    locationData: any
-}>()
-
-const { locationData } = toRefs(props)
 const search = useSearchStore()
 const weather = useWeatherStore()
 
+watch(locationStore.usercoords, async (locationCoords) => {
+    if (locationCoords.latitude && locationCoords.longitude) {
+        await weather.getCurrentWeather(locationCoords.latitude, locationCoords.longitude)
+    }
+})
+
+locationStore.getLocation()
+
 const { state } = storeToRefs(weather)
-console.log(state.value);
 
+const location = computed(() => state.value.location)
+const currentWeather = computed(() => state.value.current)
 
-// TO DO blew format date and time
-const location = computed(() => locationData.value.location)
-const currentWeather = computed(() => locationData.value.current)
-
-// const localTime = ref(new Date(location.value?.localtime).toLocaleTimeString())
 const localTime = ref(new Date().toLocaleTimeString())
-// const localDate = ref(new Date(location.value?.localtime).toLocaleDateString())
 const city = computed(() => location.value?.name)
 const country = computed(() => location.value?.country)
 const icon = computed(() => currentWeather.value?.condition.icon)
@@ -49,7 +49,7 @@ setInterval(() => {
                 <!-- <p class="text">{{ localDate }}</p> -->
             </div>
             <div class="column">
-                <img :src="icon" alt="">
+                <img v-if="icon" :src="icon" alt="">
             </div>
         </div>
         <div class="row">

@@ -3,7 +3,7 @@ import { ref } from "vue";
 
 
 export const useLocationsStore = defineStore('location', () => {
-    const coords = ref<{
+    const usercoords = ref<{
         latitude: number | null
         longitude: number | null
     }>({
@@ -12,12 +12,11 @@ export const useLocationsStore = defineStore('location', () => {
     })
     const getLocation = async () => {
         // First, get the user's location coordinates using the Geolocation API
-        if (navigator.geolocation) {            
+        if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition((data) => {
-                coords.value.latitude = data.coords.latitude
-                coords.value.longitude = data.coords.longitude
+                usercoords.value.latitude = data.coords.latitude
+                usercoords.value.longitude = data.coords.longitude
             });
-
         } else {
             console.log("Geolocation is not supported by this browser.");
         }
@@ -25,7 +24,7 @@ export const useLocationsStore = defineStore('location', () => {
 
     }
     return {
-        coords,
+        usercoords,
         getLocation,
     }
 })

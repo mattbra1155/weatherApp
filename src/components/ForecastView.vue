@@ -1,22 +1,54 @@
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue';
+import { ref } from 'vue';
 import { useWeatherStore } from '@/stores/weather';
 
-
 const weather = useWeatherStore()
-const days = ref<any>();
+const days = ref<any>()
+const activeDay = ref<any>()
 
-onMounted(async () => {
-    const response = await weather.getForecast('dopiewiec', 1)
+const setActiveDay = (day: any) => {
+    activeDay.value = day
 
-    days.value = response.forecast.forecastday
+    weather.state.location = activeDay.value.location
+    weather.state.forecast = activeDay.value.forecast
+    weather.state.current = activeDay.value.current
+
+}
+
+weather.$subscribe((mutation, state) => {
+    if (state.state.location) {
+        // weather.getForecast()
+    }
 })
+
 
 </script>
 <template>
-    <div class="list">
-        <div v-for="day in days" :key="day.date_epoch">
-            {{ day.day }}
+    <section class="forecast">
+        <div class="list">
+            <div @click="setActiveDay(dayItem)" class="day" v-for="dayItem in days" :key="dayItem.date_epoch">
+                <p class="text">{{ new Date(dayItem.date).getDate() }}.{{ new Date(dayItem.date).getMonth() }}</p>
+                <img :src="dayItem.day.condition.icon" alt="">
+                <p class="text">{{ dayItem.day.avgtemp_c.toFixed() }}°C</p>
+            </div>
         </div>
-    </div>
+        <div class="details">
+            {{ activeDay }}
+        </div>
+    </section>
 </template>
+
+
+<style lang="sass" scoped>
+
+.list
+    display: flex
+    gap: 1rem
+    padding: 1rem 0
+    overflow-x: scroll
+.day
+    display: flex
+    flex-direction: column
+    justify-content: center
+    align-items: center
+</style>

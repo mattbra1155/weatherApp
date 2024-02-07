@@ -1,32 +1,34 @@
 <script setup lang="ts" >
 import { useWeatherStore } from '@/stores/weather';
-import { ref } from 'vue';
+import { nextTick, onMounted, ref, watch, watchEffect } from 'vue';
 import { useSearchStore } from '@/stores/search';
 import searchIcon from '@/components/icons/searchIcon.vue'
-const { searchLocation } = useWeatherStore()
+const weather = useWeatherStore()
 const store = useSearchStore()
 const searchedLocation = ref<string>()
 
-console.log();
 
-store.$subscribe((mutation, state) => {
-    console.log(mutation.type, mutation.storeId, mutation.events,);
-
-})
+const locationInput = ref()
 const search = async () => {
     if (!searchedLocation.value) {
         return
     }
-    await searchLocation(searchedLocation.value)
+    await weather.searchLocation(searchedLocation.value)
+    store.toggleModal()
+
 }
 
+onMounted(() => {
+    locationInput.value.focus()
+})
 </script>
 
 <template>
     <transition>
         <div v-if="store.isOpen" class="wrapper" @click.self="store.toggleModal">
             <form class="form" @submit.prevent="search" method="dialog">
-                <input class="input" type="search" v-model="searchedLocation" placeholder="type location..." />
+                <input ref="locationInput" class="input" type="search" v-model="searchedLocation"
+                    placeholder="type location..." />
                 <button class="button --search" type="submit">
                     <searchIcon />
                 </button>
@@ -36,9 +38,7 @@ const search = async () => {
 </template>
 
 <style scoped lang="sass">
-
    
-   /* we will explain what these classes do next! */
 .v-enter-active,
 .v-leave-active 
   transition: opacity 0.5s ease

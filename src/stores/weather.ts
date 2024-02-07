@@ -1,24 +1,23 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { useLocationsStore } from './location';
 
 interface IWeatherState {
     latitude: null | number
     longitude: null | number
-    location: {
-        city: null | string
-        country: null | string
+    location: any
+    forcastDays: number
+    forecast: any
+    current: any
 
-    }
 }
 export const useWeatherStore = defineStore('weather', () => {
     const state = ref<IWeatherState>({
-        location: {
-            city: null,
-            country: null
-        },
+        location: {},
         latitude: null,
         longitude: null,
+        forcastDays: 5,
+        forecast: null,
+        current: null,
     })
 
     const searchLocation = async (location: string) => {
@@ -32,14 +31,18 @@ export const useWeatherStore = defineStore('weather', () => {
 
             state.value.latitude = data[0].lat
             state.value.longitude = data[0].lon
-            console.log(state.value);
 
-            state.value.location.city = data[0].name
-            state.value.location.country = data[0].country
+            state.value.location = data[0]
+
+            console.log(state.value);
 
             if (state.value.latitude && state.value.longitude) {
                 // need to add to state locationData from HomeView
-                getCurrentWeather(state.value.latitude, state.value.longitude)
+                // state.value.location = getCurrentWeather(state.value.latitude, state.value.longitude)
+                const foreastObject = await getForecast(3)
+                state.value.current = foreastObject.current
+                state.value.location = foreastObject.location
+                state.value.forecast = foreastObject.forecast
             }
         } catch (error) {
             console.error(error)
@@ -55,7 +58,9 @@ export const useWeatherStore = defineStore('weather', () => {
             const response = await fetch(url)
 
             const data = await response.json()
-            console.log(data);
+
+            state.value.location = data.location
+            state.value.current = data.current
             return data
 
         } catch (error) {
@@ -63,7 +68,10 @@ export const useWeatherStore = defineStore('weather', () => {
         }
     }
 
-    const getForecast = async (location: string, days: number, alerts = true, airQuality?: boolean) => {
+    const getForecast = async (days: number = state.value.forcastDays, alerts = true, airQuality?: boolean) => {
+
+        // const location: string = `${state.value.latitude},${state.value.longitude}`
+        const location: string | null | undefined = state.value.location?.name
 
         try {
             const url = `http://api.weatherapi.com/v1/forecast.json?q=${location}&days=${days}&aqi=${airQuality}&alerts=${alerts}&key=${import.meta.env.VITE_WEATHER_KEY}`
@@ -71,6 +79,11 @@ export const useWeatherStore = defineStore('weather', () => {
 
             const data = await response.json()
             console.log(data);
+
+            state.value.location = data.location
+            state.value.current = data.current
+            state.value.forecast = data.forecast
+
             return data
 
         } catch (error) {
