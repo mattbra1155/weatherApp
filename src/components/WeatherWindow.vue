@@ -20,8 +20,8 @@ const city = computed(() => location.value?.name)
 const country = computed(() => location.value?.country)
 const condition = computed(() => currentWeather.value?.condition)
 const wind = computed(() => currentWeather.value?.wind_kph | currentWeather.value?.maxwind_kph)
-const temp = computed(() => currentWeather.value?.temp_c | currentWeather.value?.maxtemp_c)
-const tempFeel = computed(() => currentWeather.value?.feelslike_c)
+const temp = computed(() => currentWeather.value?.temp_c | currentWeather.value?.avgtemp_c)
+// const tempFeel = computed(() => currentWeather.value?.feelslike_c)
 
 
 weather.$subscribe((mutation, state) => {
@@ -29,8 +29,6 @@ weather.$subscribe((mutation, state) => {
     if (state.state.forecastActiveDay) {
         forecastCurrentWeather.value = state.state.forecast.find((day: any) => day.date === state.state.forecastActiveDay)
         currentWeather.value = forecastCurrentWeather.value.day
-        console.log(currentWeather.value);
-
     }
 
 })
@@ -60,7 +58,6 @@ setInterval(() => {
                 <p class="text">Condition: {{ condition?.text }}</p>
                 <p class="text">Wind: <b>{{ wind }} km/h</b></p>
                 <p class="text">Temperature: {{ temp }}°C</p>
-                <p v-if="tempFeel" class="text">Feels like: {{ tempFeel }}°C</p>
             </div>
         </div>
     </div>

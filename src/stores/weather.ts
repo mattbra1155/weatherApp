@@ -44,27 +44,25 @@ export const useWeatherStore = defineStore('weather', () => {
             if (state.value.latitude && state.value.longitude) {
                 // need to add to state locationData from HomeView
                 // state.value.location = getCurrentWeather(state.value.latitude, state.value.longitude)
-                const forecastObject = await getForecast(3)
-                state.value.current = forecastObject.current
-                state.value.location = forecastObject.location
-                state.value.forecast = forecastObject.forecast.forecastday
+                const forecastPayload = await getForecast(3)
+                // const currentPayload = await getCurrentWeather()
+                state.value.current = forecastPayload
+                state.value.location = forecastPayload.location
+                state.value.forecast = forecastPayload.forecast.forecastday
             }
         } catch (error) {
             console.error(error)
         }
     }
 
-    const getCurrentWeather = async (lat: number, long: number) => {
-        state.value.latitude = lat
-        state.value.longitude = long
+    const getCurrentWeather = async () => {
 
         try {
-            const url = `http://api.weatherapi.com/v1/current.json?q=${lat},${long}&key=${import.meta.env.VITE_WEATHER_KEY}`
+            const url = `http://api.weatherapi.com/v1/current.json?q=${state.value.latitude},${state.value.longitude}&key=${import.meta.env.VITE_WEATHER_KEY}`
             const response = await fetch(url)
 
             const data = await response.json()
 
-            state.value.location = data.location
             state.value.current = data.current
             return data
 
