@@ -9,7 +9,7 @@ interface IWeatherState {
     longitude: null | number
     location: any
     forecastActiveDay: null | string
-    forcastDays: number
+    forecastDays: number
     forecast: any
     current: any
 
@@ -19,7 +19,7 @@ export const useWeatherStore = defineStore('weather', () => {
         location: {},
         latitude: null,
         longitude: null,
-        forcastDays: 5,
+        forecastDays: 5,
         forecastActiveDay: null,
         forecast: null,
         current: null,
@@ -44,9 +44,9 @@ export const useWeatherStore = defineStore('weather', () => {
             if (state.value.latitude && state.value.longitude) {
                 // need to add to state locationData from HomeView
                 // state.value.location = getCurrentWeather(state.value.latitude, state.value.longitude)
-                const forecastPayload = await getForecast(3)
+                const forecastPayload = await getForecast(state.value.forecastDays)
                 // const currentPayload = await getCurrentWeather()
-                state.value.current = forecastPayload
+                state.value.current = forecastPayload.current
                 state.value.location = forecastPayload.location
                 state.value.forecast = forecastPayload.forecast.forecastday
             }
@@ -71,7 +71,7 @@ export const useWeatherStore = defineStore('weather', () => {
         }
     }
 
-    const getForecast = async (days: number = state.value.forcastDays, alerts = true, airQuality?: boolean) => {
+    const getForecast = async (days: number = state.value.forecastDays, alerts = true, airQuality?: boolean) => {
 
         const { usercoords } = useLocationsStore()
 

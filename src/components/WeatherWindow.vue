@@ -13,16 +13,15 @@ const forecastCurrentWeather = ref<any>()
 const { state } = storeToRefs(weather)
 
 const location = computed(() => state.value.location)
-let currentWeather = ref<any>(state.value.current)
+let currentWeather = ref<any>()
 
 const localTime = ref(new Date().toLocaleTimeString())
 const city = computed(() => location.value?.name)
 const country = computed(() => location.value?.country)
 const condition = computed(() => currentWeather.value?.condition)
-const wind = computed(() => currentWeather.value?.wind_kph | currentWeather.value?.maxwind_kph)
-const temp = computed(() => currentWeather.value?.temp_c | currentWeather.value?.avgtemp_c)
+const wind = computed(() => currentWeather.value?.maxwind_kph || currentWeather.value?.wind_kph)
+const temp = computed(() => currentWeather.value?.temp_c)
 // const tempFeel = computed(() => currentWeather.value?.feelslike_c)
-
 
 weather.$subscribe((mutation, state) => {
     currentWeather.value = state.state.current

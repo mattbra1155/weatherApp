@@ -10,11 +10,9 @@ const setActiveDay = (day: any) => {
     weather.state.forecastActiveDay = activeDay.value.date
 }
 
-watch(() => weather.state.latitude, async (locationCoords) => {
-    if (locationCoords && weather.state.current) {
-        setActiveDay(weather.state.current)
-
-    }
+// Set first day as active on Mounted
+watch(() => weather.state.forecast, (forecastItem) => {
+    setActiveDay(forecastItem[0])
 })
 
 </script>
@@ -24,9 +22,10 @@ watch(() => weather.state.latitude, async (locationCoords) => {
         <div class="list">
             <template v-for="dayItem in weather.state.forecast" :key="dayItem.date_epoch">
                 <div v-if="new Date(dayItem.date).toLocaleDateString() === new Date().toLocaleDateString()"
-                    @click="setActiveDay(weather.state.current)" class="day" :class="{ '--active': false }">
+                    @click="setActiveDay(dayItem)" class="day"
+                    :class="{ '--active': dayItem.date === weather.state.forecastActiveDay }">
                     <p class="text">{{ new Date(dayItem.date).getDate() }}.{{ new Date(dayItem.date).getMonth() }}</p>
-                    <img :src="weather.state.current.condition.icon" alt="">
+                    <img :src="weather.state.current.condition?.icon" alt="">
                     <p class="text">{{ weather.state.current.temp_c }}°C</p>
                 </div>
                 <div v-else @click="setActiveDay(dayItem)" class="day"
