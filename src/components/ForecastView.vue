@@ -23,7 +23,13 @@ watch(() => weather.state.latitude, async (locationCoords) => {
         <h2>Forecast</h2>
         <div class="list">
             <template v-for="dayItem in weather.state.forecast" :key="dayItem.date_epoch">
-                <div @click="setActiveDay(dayItem)" class="day"
+                <div v-if="new Date(dayItem.date).toLocaleDateString() === new Date().toLocaleDateString()"
+                    @click="setActiveDay(weather.state.current)" class="day" :class="{ '--active': false }">
+                    <p class="text">{{ new Date(dayItem.date).getDate() }}.{{ new Date(dayItem.date).getMonth() }}</p>
+                    <img :src="weather.state.current.condition.icon" alt="">
+                    <p class="text">{{ weather.state.current.temp_c }}°C</p>
+                </div>
+                <div v-else @click="setActiveDay(dayItem)" class="day"
                     :class="{ '--active': dayItem.date === weather.state.forecastActiveDay }">
                     <p class="text">{{ new Date(dayItem.date).getDate() }}.{{ new Date(dayItem.date).getMonth() }}</p>
                     <img :src="dayItem.day?.condition.icon" alt="">
