@@ -2,35 +2,38 @@
 import { useSearchStore } from '@/stores/search';
 import { useWeatherStore } from '@/stores/weather';
 import { storeToRefs } from 'pinia';
-import { computed, ref, watch } from 'vue';
+import { computed, ref } from 'vue';
 import SearchIcon from './icons/searchIcon.vue';
-import { useLocationsStore } from '@/stores/location';
-const locationStore = useLocationsStore()
 
 const search = useSearchStore()
 const weather = useWeatherStore()
 
-watch(locationStore.usercoords, async (locationCoords) => {
-    if (locationCoords.latitude && locationCoords.longitude) {
-        await weather.getCurrentWeather(locationCoords.latitude, locationCoords.longitude)
-    }
-})
-
-locationStore.getLocation()
+const forecastCurrentWeather = ref<any>()
 
 const { state } = storeToRefs(weather)
 
 const location = computed(() => state.value.location)
-const currentWeather = computed(() => state.value.current)
+let currentWeather = ref<any>(state.value.current)
 
 const localTime = ref(new Date().toLocaleTimeString())
 const city = computed(() => location.value?.name)
 const country = computed(() => location.value?.country)
-const icon = computed(() => currentWeather.value?.condition.icon)
-const wind = computed(() => currentWeather.value?.wind_kph)
-const temp = computed(() => currentWeather.value?.temp_c)
+const condition = computed(() => currentWeather.value?.condition)
+const wind = computed(() => currentWeather.value?.wind_kph | currentWeather.value?.maxwind_kph)
+const temp = computed(() => currentWeather.value?.temp_c | currentWeather.value?.maxtemp_c)
 const tempFeel = computed(() => currentWeather.value?.feelslike_c)
 
+
+weather.$subscribe((mutation, state) => {
+    currentWeather.value = state.state.current
+    if (state.state.forecastActiveDay) {
+        forecastCurrentWeather.value = state.state.forecast.find((day: any) => day.date === state.state.forecastActiveDay)
+        currentWeather.value = forecastCurrentWeather.value.day
+        console.log(currentWeather.value);
+
+    }
+
+})
 setInterval(() => {
     localTime.value = new Date().toLocaleTimeString()
 }, 1000)
@@ -49,15 +52,15 @@ setInterval(() => {
                 <!-- <p class="text">{{ localDate }}</p> -->
             </div>
             <div class="column">
-                <img v-if="icon" :src="icon" alt="">
+                <img v-if="condition?.icon" :src="condition?.icon" alt="">
             </div>
         </div>
         <div class="row">
             <div class="column">
-                <p class="text">Condition: Clear</p>
+                <p class="text">Condition: {{ condition?.text }}</p>
                 <p class="text">Wind: <b>{{ wind }} km/h</b></p>
                 <p class="text">Temperature: {{ temp }}°C</p>
-                <p class="text">Feels like: {{ tempFeel }}°C</p>
+                <p v-if="tempFeel" class="text">Feels like: {{ tempFeel }}°C</p>
             </div>
         </div>
     </div>

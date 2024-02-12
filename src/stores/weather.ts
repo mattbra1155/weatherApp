@@ -1,10 +1,14 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
+import { useLocationsStore } from './location';
+
+
 
 interface IWeatherState {
     latitude: null | number
     longitude: null | number
     location: any
+    forecastActiveDay: null | string
     forcastDays: number
     forecast: any
     current: any
@@ -16,6 +20,7 @@ export const useWeatherStore = defineStore('weather', () => {
         latitude: null,
         longitude: null,
         forcastDays: 5,
+        forecastActiveDay: null,
         forecast: null,
         current: null,
     })
@@ -39,10 +44,10 @@ export const useWeatherStore = defineStore('weather', () => {
             if (state.value.latitude && state.value.longitude) {
                 // need to add to state locationData from HomeView
                 // state.value.location = getCurrentWeather(state.value.latitude, state.value.longitude)
-                const foreastObject = await getForecast(3)
-                state.value.current = foreastObject.current
-                state.value.location = foreastObject.location
-                state.value.forecast = foreastObject.forecast
+                const forecastObject = await getForecast(3)
+                state.value.current = forecastObject.current
+                state.value.location = forecastObject.location
+                state.value.forecast = forecastObject.forecast.forecastday
             }
         } catch (error) {
             console.error(error)
@@ -70,8 +75,12 @@ export const useWeatherStore = defineStore('weather', () => {
 
     const getForecast = async (days: number = state.value.forcastDays, alerts = true, airQuality?: boolean) => {
 
-        // const location: string = `${state.value.latitude},${state.value.longitude}`
-        const location: string | null | undefined = state.value.location?.name
+        const { usercoords } = useLocationsStore()
+
+        state.value.latitude = usercoords.latitude
+        state.value.longitude = usercoords.longitude
+
+        const location: string | null | undefined = state.value.location?.name || `${state.value.latitude},${state.value.longitude}`
 
         try {
             const url = `http://api.weatherapi.com/v1/forecast.json?q=${location}&days=${days}&aqi=${airQuality}&alerts=${alerts}&key=${import.meta.env.VITE_WEATHER_KEY}`
@@ -82,7 +91,7 @@ export const useWeatherStore = defineStore('weather', () => {
 
             state.value.location = data.location
             state.value.current = data.current
-            state.value.forecast = data.forecast
+            state.value.forecast = data.forecast.forecastday
 
             return data
 
