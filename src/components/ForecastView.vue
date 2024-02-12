@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { useWeatherStore } from '@/stores/weather';
+import { transformDateToLocaleString } from '@/utils/transformDate'
 
 const weather = useWeatherStore()
 const activeDay = ref<any>()
@@ -21,7 +22,7 @@ watch(() => weather.state.forecast, (forecastItem) => {
         <h2>Forecast</h2>
         <div class="list">
             <template v-for="dayItem in weather.state.forecast" :key="dayItem.date_epoch">
-                <div v-if="new Date(dayItem.date).toLocaleDateString() === new Date().toLocaleDateString()"
+                <div v-if="transformDateToLocaleString(dayItem.date) === transformDateToLocaleString()"
                     @click="setActiveDay(dayItem)" class="day"
                     :class="{ '--active': dayItem.date === weather.state.forecastActiveDay }">
                     <p class="text">{{ new Date(dayItem.date).getDate() }}.{{ new Date(dayItem.date).getMonth() }}</p>
@@ -31,7 +32,8 @@ watch(() => weather.state.forecast, (forecastItem) => {
                 <div v-else @click="setActiveDay(dayItem)" class="day"
                     :class="{ '--active': dayItem.date === weather.state.forecastActiveDay }">
                     <p class="text">{{ new Date(dayItem.date).getDate() }}.{{ new Date(dayItem.date).getMonth() }}</p>
-                    <img :src="dayItem.day?.condition.icon" alt="">
+                    <img :src="weather.state.current.is_day ? '' : dayItem.day?.condition.icon.replace('day', 'night')"
+                        alt="">
                     <p class="text">{{ dayItem.day?.avgtemp_c }}°C</p>
                 </div>
             </template>

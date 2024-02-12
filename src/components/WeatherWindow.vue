@@ -4,7 +4,7 @@ import { useWeatherStore } from '@/stores/weather';
 import { storeToRefs } from 'pinia';
 import { computed, ref } from 'vue';
 import SearchIcon from './icons/searchIcon.vue';
-
+import { transformDateToLocaleString } from '@/utils/transformDate'
 const search = useSearchStore()
 const weather = useWeatherStore()
 
@@ -18,18 +18,21 @@ let currentWeather = ref<any>()
 const localTime = ref(new Date().toLocaleTimeString())
 const city = computed(() => location.value?.name)
 const country = computed(() => location.value?.country)
-const condition = computed(() => currentWeather.value?.condition)
-const wind = computed(() => currentWeather.value?.maxwind_kph || currentWeather.value?.wind_kph)
-const temp = computed(() => currentWeather.value?.temp_c)
+const condition = computed(() => currentWeather.value?.condition || forecastCurrentWeather.value?.day.condition)
+const wind = computed(() => currentWeather.value?.wind_kph || forecastCurrentWeather.value?.day.maxwind_kph)
+const temp = computed(() => currentWeather.value?.temp_c || forecastCurrentWeather.value?.day.avgtemp_c)
 // const tempFeel = computed(() => currentWeather.value?.feelslike_c)
 
 weather.$subscribe((mutation, state) => {
     currentWeather.value = state.state.current
     if (state.state.forecastActiveDay) {
         forecastCurrentWeather.value = state.state.forecast.find((day: any) => day.date === state.state.forecastActiveDay)
-        currentWeather.value = forecastCurrentWeather.value.day
+        if (transformDateToLocaleString(forecastCurrentWeather.value.date) === transformDateToLocaleString()) {
+            currentWeather.value = state.state.current
+            return
+        }
+        currentWeather.value = forecastCurrentWeather.value
     }
-
 })
 setInterval(() => {
     localTime.value = new Date().toLocaleTimeString()
@@ -49,7 +52,8 @@ setInterval(() => {
                 <!-- <p class="text">{{ localDate }}</p> -->
             </div>
             <div class="column">
-                <img v-if="condition?.icon" :src="condition?.icon" alt="">
+                <img v-if="condition?.icon"
+                    :src="weather.state.current.is_day ? '' : condition.icon.replace('day', 'night')" alt="">
             </div>
         </div>
         <div class="row">
